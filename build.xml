@@ -1,0 +1,104 @@
+<!-- $Id: build.xml,v 1.6 2002/10/08 14:05:18 jan Exp $ -->
+<!-- Ant 1.2 build file -->
+
+<project name="HylaFAXSender" default="dist" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src" value="${basedir}/src" />
+  <property name="build" value="${basedir}/bin" />
+  <property name="lib" value="${basedir}/lib" />
+  <property name="app" value="${basedir}/app" />
+  <property name="dist" value="${basedir}/dist" />
+
+  <!-- a reusable path -->
+  <path id="std.classpath">
+    <pathelement location = "${build}" />
+    <fileset dir="${lib}">
+		<include name="gnu-hylafax-0.0.7.jar"/>
+		<include name="MRJToolkitStubs.zip"/>
+		<include name="kunststoff.jar"/>
+	</fileset>
+    <!--pathelement location = "${lib}/gnu-hylafax-0.0.7.jar" />
+    <pathelement location = "${lib}/MRJToolkitStubs.zip" /-->
+  </path>
+
+  <target name="prepare">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}" />
+    <mkdir dir="${app}" />
+    <mkdir dir="${dist}" />
+  </target>
+
+  <target name="compile" depends="prepare">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" debug="on">
+      <classpath refid="std.classpath"/>
+    </javac>
+  </target>
+
+  <target name="copy-rsrc" depends="prepare">
+    <!-- Copy various resource files into ${build} -->
+    <copy todir="${build}">
+      <fileset
+        dir="${basedir}"
+        includes="images/*.gif" />
+    </copy>
+  </target>
+
+  <target name="jar" depends="compile,copy-rsrc">
+    <!-- Put everything in ${build} into the a ${name}.jar file -->
+    <jar
+      jarfile="${basedir}/${ant.project.name}.jar"
+      basedir="${build}"
+      manifest="${basedir}/${ant.project.name}.mf" />
+    <!-- Copy the .jar to the .app package/dir -->
+    <copy todir="${app}/${ant.project.name}.app/Contents/Resources/Java/">
+      <fileset
+        dir="${basedir}/"
+        includes="${ant.project.name}.jar" />
+    </copy>
+  </target>
+
+  <target name="run" depends="compile,copy-rsrc">
+    <!-- Execute the main application -->
+    <java
+      classname="be.beta9.hylafax.HylaFaxSender"
+      fork="yes">
+      <classpath refid="std.classpath"/>
+	</java>
+  </target>
+
+  <target name="run-mac" depends="compile,copy-rsrc,jar">
+    <!-- Execute the main application thru its app bundle -->
+    <exec dir="${app}" executable="/usr/bin/open" os="Mac OS X">
+      <arg line="${ant.project.name}.app"/>
+    </exec>
+  </target>
+  
+  <target name="dist" depends="jar">
+    <!-- Put needed jars into the dist directory -->
+    <copy todir="${dist}/">
+      <fileset
+        dir="${basedir}/"
+        includes="${ant.project.name}.jar" />
+      <fileset
+        dir="${lib}/"
+        includes="gnu-hylafax-0.0.7.jar" />
+      <fileset
+        dir="${lib}/"
+        includes="MRJToolkitStubs.zip" />
+      <fileset
+        dir="${lib}/"
+	includes="kunststoff.jar" />
+    </copy>
+  </target>
+
+  <target name="clean">
+    <!-- Delete the ${build} directory trees -->
+    <delete dir="${build}" />
+    <delete dir="${dist}" />
+  </target>
+
+</project>

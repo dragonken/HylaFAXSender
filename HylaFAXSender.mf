@@ -1,0 +1,2 @@
+Main-Class: be.beta9.hylafax.HylaFaxSender
+Class-Path: gnu-hylafax-0.0.7.jar MRJToolkitStubs.zip kunststoff.jar

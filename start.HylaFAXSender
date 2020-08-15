@@ -1,0 +1,8 @@
+#!/bin/sh
+# $Id: start.HylaFAXSender,v 1.4 2002/10/08 14:44:59 nicky Exp $
+#
+# starts HylaFAXSender
+# uses the jars in dist/
+
+# make sure $JAVA_HOME/bin is in your path !! (or java)
+java -jar ./dist/HylaFAXSender.jar
